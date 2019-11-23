@@ -42,19 +42,44 @@ function __userinstalled_edit () {
     fi
 }
 
+function __userinstalled_help() {
+    echo -e "Usage: userinstalled [OPTION]";
+    
+    echo -e "\nOptions:"
+    
+    echo -e "    help, -h, --help \t\t show this help menu"
+    
+    echo -e "    backup, -b, --backup \t perform a backup. The same can be achieved
+    \t\t\t\t by typing 'userinstalled' without any args"
+    
+    echo -e "    restore, -r, --restore \t install all packages in the USERINSTALLED_FILE"
+    
+    echo -e "    edit, -e, --edit \t\t edit the config file"
+    
+    echo -e "\nExamples:"
+    echo -e "    userinstalled"
+    echo -e "    userinstalled backup"
+    echo -e "    userinstalled edit"
+    echo -e "    userinstalled restore"
+    echo -e ""
+}
+
 function userinstalled () {
     case "$1" in
         "backup"|"-b"|"--backup")
-            __userinstalled_backup
+            __userinstalled_backup;
         ;;
         "restore"|"-r"|"--restore")
-            __userinstalled_restore
+            __userinstalled_restore;
         ;;
         "edit"|"-e"|"--edit")
-            __userinstalled_edit
+            __userinstalled_edit;
+        ;;
+        "help"|"-h"|"--help")
+            __userinstalled_help;
         ;;
         *)
-            echo "userinstalled: unknown option -- '${1}'"
+            __userinstalled_backup;
         ;;
     esac
 }
