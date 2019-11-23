@@ -12,6 +12,14 @@ if [[ ! -e "$__USERINSTALLED_CONFIG_FILE" ]]; then
     cp ${__USERINSTALLED_CONFIG_TEMPLATE} ${__USERINSTALLED_CONFIG_FILE};
 fi
 
+function __userinstalled_success () {
+    echo `tput setaf 2`success`tput sgr0`": ${1}"
+}
+
+function __userinstalled_failed () {
+    echo `tput setaf 1`failed`tput sgr0`": ${1}"
+}
+
 function __userinstalled_backup () {
     source $__USERINSTALLED_CONFIG_FILE;
     [ -z $USERINSTALLED_FILE ] && echo "you must set USERINSTALLED_FILE in the config file" && return 1;
@@ -20,14 +28,18 @@ function __userinstalled_backup () {
         mkdir -p `dirname $USERINSTALLED_FILE`;
     fi
     
-    [[ -z $USERINSTALLED_IGNORED_PACKAGES ]] || echo "excluding packages: "`tput setaf 1`${USERINSTALLED_IGNORED_PACKAGES}`tput sgr0`"..."
-    
-    local ignored=`echo $USERINSTALLED_IGNORED_PACKAGES | sed 's/ /|/g'`;
-    
     # exclude zsh, because it needs to be installed prior to running this script
-    (dnf repoquery --userinstalled --queryformat %{name} | grep -vE "zsh|$ignored" > $USERINSTALLED_FILE) && \
-    echo `tput setaf 2`success`tput sgr0`": package names backed up" || \
-    echo `tput setaf 1`failed`tput sgr0`": unable to backup package names"
+    local grep_pattern="zsh";
+    # add ignored packages to grep pattern
+    if [[ ! -z $USERINSTALLED_IGNORED_PACKAGES ]]; then
+        echo "excluding packages: "`tput setaf 1`${USERINSTALLED_IGNORED_PACKAGES}`tput sgr0`"..."
+        local ignored=`echo $USERINSTALLED_IGNORED_PACKAGES | sed 's/ /|/g'`;
+        grep_pattern+="|${ignored}"
+    fi
+    
+    (dnf repoquery --userinstalled --queryformat %{name} | grep -vE "${grep_pattern}" > $USERINSTALLED_FILE) && \
+    __userinstalled_success "package names backed up" || \
+    __userinstalled_failed "unable to backup package names"
 }
 
 function __userinstalled_restore () {
