@@ -20,10 +20,14 @@ function __userinstalled_backup () {
         mkdir -p `dirname $USERINSTALLED_FILE`;
     fi
     
+    [[ -z $USERINSTALLED_IGNORED_PACKAGES ]] || echo "excluding packages: "`tput setaf 1`${USERINSTALLED_IGNORED_PACKAGES}`tput sgr0`"..."
+    
+    local ignored=`echo $USERINSTALLED_IGNORED_PACKAGES | sed 's/ /|/g'`;
+    
     # exclude zsh, because it needs to be installed prior to running this script
-    # TODO: add ignore packages
-    dnf repoquery --userinstalled --queryformat %{name} | grep -v "zsh" > $USERINSTALLED_FILE
-    echo "userinstalled: package names backed up";
+    (dnf repoquery --userinstalled --queryformat %{name} | grep -vE "zsh|$ignored" > $USERINSTALLED_FILE) && \
+    echo `tput setaf 2`success`tput sgr0`": package names backed up" || \
+    echo `tput setaf 1`failed`tput sgr0`": unable to backup package names"
 }
 
 function __userinstalled_restore () {

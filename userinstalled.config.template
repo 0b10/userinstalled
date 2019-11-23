@@ -1,0 +1,3 @@
+export USERINSTALLED_FILE="/tmp/foo/target.txt";
+
+export USERINSTALLED_IGNORED_PACKAGES="weechat xterm";
