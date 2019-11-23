@@ -9,6 +9,8 @@ function userinstalled () {
         mkdir -p `dirname $DNF_USERINSTALLED_TARGET`;
     fi
     
+    sudo dnf history userinstalled > $DNF_USERINSTALLED_TARGET && \
+    echo "userinstalled: package names backed up";
 }
 
 userinstalled
