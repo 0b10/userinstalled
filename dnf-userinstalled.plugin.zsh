@@ -1,5 +1,7 @@
 #!/usr/bin/zsh
 
+zmodload zsh/mapfile;
+
 DNF_USERINSTALLED_TARGET="/tmp/foo/target.txt"
 
 function _userinstalled_backup () {
@@ -14,7 +16,8 @@ function _userinstalled_backup () {
 }
 
 function _userinstalled_restore () {
-    echo restoring
+    local packages=$mapfile[${DNF_USERINSTALLED_TARGET}];
+    echo $packages
 }
 
 function userinstalled () {
