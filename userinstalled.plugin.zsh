@@ -37,11 +37,11 @@ if [[ ! -e "$__USERINSTALLED_CONFIG_FILE" ]]; then
 fi
 
 function __userinstalled_success () {
-    echo `tput setaf 2`success`tput sgr0`": ${1}"
+    echo `tput setaf 2`success`tput sgr0`": ${1}";
 }
 
 function __userinstalled_failed () {
-    echo `tput setaf 1`failed`tput sgr0`": ${1}"
+    echo `tput setaf 1`failed`tput sgr0`": ${1}";
 }
 
 function __userinstalled_backup () {
@@ -52,18 +52,19 @@ function __userinstalled_backup () {
         mkdir -p `dirname $USERINSTALLED_FILE`;
     fi
     
-    # exclude zsh, because it needs to be installed prior to running this script
+    # exclude zsh by default, because it needs to be installed prior to running this script
     local grep_pattern="zsh";
     # add ignored packages to grep pattern
     if [[ ! -z $USERINSTALLED_IGNORED_PACKAGES ]]; then
-        echo "excluding packages: "`tput setaf 1`${USERINSTALLED_IGNORED_PACKAGES}`tput sgr0`"..."
-        local ignored=`echo $USERINSTALLED_IGNORED_PACKAGES | sed 's/ /|/g'`;
-        grep_pattern+="|${ignored}"
+        # trim leading/trailing spaces, and replace spaces between package names with a pipe
+        local ignored=`echo $USERINSTALLED_IGNORED_PACKAGES | perl -pe "s/(^ +| +$)//g" | perl -pe "s/ +/|/g"`;
+        echo "excluding packages: "`tput setaf 1`${ignored}`tput sgr0`"...";
+        grep_pattern+="|${ignored}";
     fi
     
     (dnf repoquery --userinstalled --queryformat %{name} | grep -vE "${grep_pattern}" > $USERINSTALLED_FILE) && \
     __userinstalled_success "package names backed up" || \
-    __userinstalled_failed "unable to backup package names"
+    __userinstalled_failed "unable to backup package names";
 }
 
 function __userinstalled_restore () {
@@ -71,7 +72,7 @@ function __userinstalled_restore () {
     [ -z $USERINSTALLED_FILE ] && echo "you must set USERINSTALLED_FILE in the config file" && return 1;
     
     local packages=("${(f@)mapfile[${USERINSTALLED_FILE}]}")
-    sudo dnf install ${packages[@]} # don't make string, it causes issues
+    sudo dnf install ${packages[@]};  # don't make string, it causes issues
 }
 
 function __userinstalled_edit () {
@@ -85,23 +86,23 @@ function __userinstalled_edit () {
 function __userinstalled_help() {
     echo -e "Usage: userinstalled [OPTION]";
     
-    echo -e "\nOptions:"
+    echo -e "\nOptions:";
     
-    echo -e "    help, -h, --help \t\t show this help menu"
+    echo -e "    help, -h, --help \t\t show this help menu";
     
     echo -e "    backup, -b, --backup \t perform a backup. The same can be achieved
-    \t\t\t\t by typing 'userinstalled' without any args"
+    \t\t\t\t by typing 'userinstalled' without any args";
     
-    echo -e "    restore, -r, --restore \t install all packages in the USERINSTALLED_FILE"
+    echo -e "    restore, -r, --restore \t install all packages in the USERINSTALLED_FILE";
     
-    echo -e "    edit, -e, --edit \t\t edit the config file"
+    echo -e "    edit, -e, --edit \t\t edit the config file";
     
-    echo -e "\nExamples:"
-    echo -e "    userinstalled"
-    echo -e "    userinstalled backup"
-    echo -e "    userinstalled edit"
-    echo -e "    userinstalled restore"
-    echo -e ""
+    echo -e "\nExamples:";
+    echo -e "    userinstalled";
+    echo -e "    userinstalled backup";
+    echo -e "    userinstalled edit";
+    echo -e "    userinstalled restore";
+    echo -e "";
 }
 
 function userinstalled () {
