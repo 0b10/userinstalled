@@ -1,3 +1,6 @@
-export USERINSTALLED_FILE="/tmp/foo/target.txt";
+# The file where all the package names are backed up to.
+export USERINSTALLED_FILE="${HOME}/.backup/${HOSTNAME}/userinstalled-packages.txt";
 
+# A string of ignored package names, separated by spaces. Do not include version, or any superfluous
+#  information - just the package name. These will be excluded from the backup file.
 export USERINSTALLED_IGNORED_PACKAGES="weechat xterm";
