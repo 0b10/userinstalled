@@ -23,8 +23,8 @@ dnf repoquery --userinstalled --queryformat %{name} | grep -vE "pkg1|pkg2|pkg3" 
 
 ## Features
 
-- Backup all user installed package names to a designated file
-- Restore all backed up package names
+- Backup all user installed packages to a designated file
+- Restore (install) all backed up packages
 - Ignore a package, or packages
 
 ## Install
