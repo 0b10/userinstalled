@@ -31,7 +31,15 @@ function __userinstalled_restore () {
     [ -z $USERINSTALLED_FILE ] && echo "you must set USERINSTALLED_FILE in the config file" && return 1;
     
     local packages=("${(f@)mapfile[${USERINSTALLED_FILE}]}")
-    sudo dnf install ${packages[@]} # don't make string, causes issues
+    sudo dnf install ${packages[@]} # don't make string, it causes issues
+}
+
+function __userinstalled_edit () {
+    if [[ -z $EDITOR ]]; then
+        vim $__BB_CONFIG_FILE;
+    else
+        $EDITOR $__USERINSTALLED_CONFIG_FILE;
+    fi
 }
 
 function userinstalled () {
@@ -41,6 +49,9 @@ function userinstalled () {
         ;;
         "restore"|"-r"|"--restore")
             __userinstalled_restore
+        ;;
+        "edit"|"-e"|"--edit")
+            __userinstalled_edit
         ;;
         *)
             echo "userinstalled: unknown option -- '${1}'"
