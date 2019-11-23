@@ -2,34 +2,45 @@
 
 zmodload zsh/mapfile;
 
-DNF_USERINSTALLED_FILE="/tmp/foo/target.txt"
+__USERINSTALLED_LOCAL_DIR="$(dirname $0)/";
+__USERINSTALLED_CONFIG_TEMPLATE="${__USERINSTALLED_LOCAL_DIR}/userinstalled.config.template";
+__USERINSTALLED_CONFIG_FILE="${HOME}/.config/userinstalled-zsh/userinstalled.config.zsh";
 
-function _userinstalled_backup () {
-    if [ ! -d `dirname $DNF_USERINSTALLED_FILE` ]; then
-        mkdir -p `dirname $DNF_USERINSTALLED_FILE`;
+if [[ ! -e "$__USERINSTALLED_CONFIG_FILE" ]]; then
+    # make a config under .config/userinstalled-zsh
+    mkdir -p `dirname ${__USERINSTALLED_CONFIG_FILE}`;
+    cp ${__USERINSTALLED_CONFIG_TEMPLATE} ${__USERINSTALLED_CONFIG_FILE};
+fi
+
+function __userinstalled_backup () {
+    source $__USERINSTALLED_CONFIG_FILE;
+    [ -z $USERINSTALLED_FILE ] && echo "you must set USERINSTALLED_FILE in the config file" && return 1;
+    
+    if [ ! -d `dirname $USERINSTALLED_FILE` ]; then
+        mkdir -p `dirname $USERINSTALLED_FILE`;
     fi
     
     # exclude zsh, because it needs to be installed prior to running this script
     # TODO: add ignore packages
-    dnf repoquery --userinstalled --queryformat %{name} | grep -v "zsh" > $DNF_USERINSTALLED_FILE
+    dnf repoquery --userinstalled --queryformat %{name} | grep -v "zsh" > $USERINSTALLED_FILE
     echo "userinstalled: package names backed up";
 }
 
-function _userinstalled_restore () {
-    local packages=("${(f@)mapfile[${DNF_USERINSTALLED_FILE}]}")
+function __userinstalled_restore () {
+    source $__USERINSTALLED_CONFIG_FILE;
+    [ -z $USERINSTALLED_FILE ] && echo "you must set USERINSTALLED_FILE in the config file" && return 1;
+    
+    local packages=("${(f@)mapfile[${USERINSTALLED_FILE}]}")
     sudo dnf install ${packages[@]} # don't make string, causes issues
 }
 
 function userinstalled () {
-    [[ -z $DNF_USERINSTALLED_FILE ]] && \
-    echo "you must export DNF_USERINSTALLED_FILE from your zshrc" && return 1;
-    
     case "$1" in
         "backup"|"-b"|"--backup")
-            _userinstalled_backup
+            __userinstalled_backup
         ;;
         "restore"|"-r"|"--restore")
-            _userinstalled_restore
+            __userinstalled_restore
         ;;
         *)
             echo "userinstalled: unknown option -- '${1}'"
