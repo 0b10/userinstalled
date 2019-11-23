@@ -3,4 +3,4 @@ export USERINSTALLED_FILE="${HOME}/.backup/${HOSTNAME}/userinstalled-packages.tx
 
 # A string of ignored package names, separated by spaces. Do not include version, or any superfluous
 #  information - just the package name. These will be excluded from the backup file.
-export USERINSTALLED_IGNORED_PACKAGES="xterm weechat";
+export USERINSTALLED_IGNORED_PACKAGES="";

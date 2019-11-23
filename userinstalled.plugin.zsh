@@ -99,5 +99,3 @@ function userinstalled () {
         ;;
     esac
 }
-
-userinstalled $@
